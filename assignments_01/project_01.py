@@ -96,24 +96,29 @@ def hypothesis(df):
     else:
         logger.info(f"There is no significant difference in happiness score between Switzerland and Iran (t-test = {t_test1}, p value = {p_value1})")
     return {"t_test": t_test, "p_value": p_value}
+
 @task
 def correlation(df):
     logger = get_run_logger()
     df_numeric = df.drop(columns = ["Ranking", "Country", "Regional indicator", "Happiness score", "year"])
     num_tests = len(df_numeric.columns)
     corrected_alpha = 0.05 / num_tests
-    corr_results = {}
+    corr_results = pd.DataFrame(columns=["variable", "r", "p"])
     for col in df_numeric:
         r, p = stats.pearsonr(df_numeric[col], df["Happiness score"])
         if p < 0.05:
             if p < corrected_alpha:
                 logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which confirms that the result is statistically significant. The result is still statistically significant after alpha correction")
-                corr_results[col] = {"r": r, "p": p}
+                corr_results.loc[len(corr_results)] = [col, r, p]
             else: 
                 logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p}. The result appears statistically insignificant after checking against corrected alpha {corrected_alpha}")
         else:
             logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which is statistically insignificant")
-    logger.info(f"Correlations {corr_results}")
+    corr_results = corr_results[corr_results["r"].abs() > 0.1]
+    corr_results["direction"] = corr_results["r"].apply(lambda x: "negative" if x < 0 else "positive")
+    corr_results["strength"] = corr_results["r"].apply(lambda x: "weak" if abs(x) < 0.4 else "moderate" if abs(x) < 0.7 else "strong")
+    for _, row in corr_results.iterrows():
+        logger.info(f"There is {row['strength']} {row['direction']} correlation between Happiness and {row['variable']} (r = {row['r']:.3f}, p = {row['p']})")
     return corr_results
 
 @task
@@ -122,11 +127,11 @@ def summary(df, stats, testing, corr_results):
     num_countries = df["Country"].nunique()
     num_years = df["year"].nunique()
     countries = stats["mean over countries"].sort_values(ascending=False)
-    max_corr = max(corr_results, key = lambda col: abs(corr_results[col]["r"]))
+    max_corr = corr_results.loc[corr_results["r"].idxmax()]
     logger.info(f"The dataset includes {num_countries} countries across {num_years} years.")
     logger.info(f"The contries that scored highest in happines are {countries.head(3)}, the countries that scored the lowest in happiness are {countries.tail(3)}")
-    logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing["t_test"]}, p value = {testing["p_value"]})")
-    logger.info(f"{max_corr} has the strongest correlation with happiness (r = {corr_results[max_corr]['r']}, p = {corr_results[max_corr]['p']})")
+    logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing['t_test']}, p value = {testing['p_value']})")
+    logger.info(f"{max_corr["variable"]} has the strongest correlation with happiness (r = {max_corr['r']}, p = {max_corr['p']})")
 
 @flow
 def pipeline():
@@ -140,7 +145,6 @@ def pipeline():
     testing = hypothesis(df)
     corr_results = correlation(df)
     summary(df, stats, testing, corr_results)
-  
 
 if __name__ == "__main__":
     pipeline()
