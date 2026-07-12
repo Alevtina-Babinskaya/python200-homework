@@ -35,7 +35,6 @@ def save_data(df):
 @task 
 def get_statistics(df):
     logger = get_run_logger()
-    print(df[df["year"] == 2024]["Happiness score"].head(10))
     mean = np.mean(df["Happiness score"])
     median = np.median(df["Happiness score"])
     std = np.std(df["Happiness score"])
@@ -119,8 +118,8 @@ def summary(df, stats, testing):
     logger = get_run_logger()
     num_countries = df["Country"].nunique()
     num_years = df["year"].nunique()
-    logger.info(f"The dataset includes {num_countries} countries across {num_years} years.")
     countries = stats["mean over countries"].sort_values(ascending=False)
+    logger.info(f"The dataset includes {num_countries} countries across {num_years} years.")
     logger.info(f"The contries that scored highest in happines are {countries.head(3)}, the countries that scored the lowest in happiness are {countries.tail(3)}")
     logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing["t_test"]}, p value = {testing["p_value"]})")
     logger.info(f"Social support has the strongest correlation with happiness (r = 0.744, pp < .001)")

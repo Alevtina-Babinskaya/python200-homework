@@ -11,6 +11,7 @@ def create_series(arr):
 @task 
 def clean_data(series):
     return series.dropna()
+
 @task 
 def summarize_data(series):
     mean = np.mean(series)
@@ -20,14 +21,15 @@ def summarize_data(series):
     return {"mean": mean, "median": median, "std": std, "mode": mode}
 
 @flow
-def data_pipeline(arr):
+def pipeline_flow(arr):
     series = create_series(arr)
-    statistics = summarize_data(clean_data(series))
+    cleaned_series = clean_data(series)
+    statistics = summarize_data(cleaned_series)
     return statistics
     
 
 if __name__  == "__main__":
-    result = data_pipeline(data)
+    result = pipeline_flow(data)
     for key, value in result.items():
         print(f"{key}: {value}")
 

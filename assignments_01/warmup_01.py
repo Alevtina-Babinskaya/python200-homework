@@ -98,17 +98,11 @@ plt.show()
 # Matplotlib Q3
 x1, y1 = [1, 2, 3, 4, 5], [2, 4, 5, 4, 5]
 x2, y2 = [1, 2, 3, 4, 5], [5, 4, 3, 2, 1]
-fig, axes = plt.subplots(1, 2)
-axes[0].scatter(x1, y1, color = "blue")
-axes[0].set_xlabel("x1")
-axes[0].set_ylabel("y1")
-axes[0].legend()
-
-axes[1].scatter(x2, y2, color = "orange")
-axes[0].set_xlabel("x2")
-axes[0].set_ylabel("y2")
-axes[0].legend()
-
+plt.scatter(x1, y1, color = "blue", label="Dataset 1")
+plt.scatter(x2, y2, color = "orange", label="Dataset 2")
+plt.title("Dataset comparison")
+plt.xlabel("x")
+plt.ylabel("y")
 plt.show()
 
 # Matplotlib Q4
@@ -138,27 +132,24 @@ plt.show()
 # Descriptive Stats Question 3
 group_a = [55, 60, 63, 70, 68, 62, 58, 65]
 group_b = [75, 80, 78, 90, 85, 79, 82, 88]
-plt.boxplot([group_a, group_b], labels=["Group A", "Group B"])
+plt.boxplot([group_a, group_b], tick_labels=["Group A", "Group B"])
 plt.title("Score Comparison")
 plt.show()
 
 # Descriptive Stats Question 4
 normal_data = np.random.normal(50, 5, 200)
 skewed_data = np.random.exponential(10, 200)
-plt.figure(figsize = (10, 4))
+fig, axes = plt.subplots(1, 2)
+axes[0].hist(normal_data, bins=30, color="skyblue", edgecolor="black")
+axes[0].set_title("Normal Distribution")
+axes[0].set_xlabel("Value")
+axes[0].set_ylabel("Frequency")
 
-plt.subplot(1, 2, 1)
-plt.hist(normal_data, bins=30, color="skyblue", edgecolor="black")
-plt.title("Normal")
-plt.xlabel("Value")
-plt.ylabel("Frequency")
-
-plt.subplot(1, 2, 2)
-plt.hist(skewed_data, bins=30, color="pink", edgecolor="black")
-plt.title("Exponential")
-plt.xlabel("Value")
-plt.ylabel("Frequency")
-
+axes[1].hist(skewed_data, bins=30, color="pink", edgecolor="black")
+axes[1].set_title("Exponential Distribution")
+axes[1].set_xlabel("Value")
+axes[1].set_ylabel("Frequency")
+fig.suptitle("Distribution Comparison")
 plt.tight_layout()
 plt.show()
 
@@ -207,7 +198,7 @@ x = [1, 2, 3, 4, 5]
 y = [2, 4, 6, 8, 10]
 corr_matrix = np.corrcoef(x, y)
 print(f"Correlation: {corr_matrix}")
-print(corr_matrix[0, 1])
+print(corr_matrix[0, 1]) # Looking at the data I expected strong positive correlation
 
 # Correlation Question 2
 x = [1,  2,  3,  4,  5,  6,  7,  8,  9, 10]
