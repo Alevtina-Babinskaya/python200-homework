@@ -102,31 +102,31 @@ def correlation(df):
     df_numeric = df.drop(columns = ["Ranking", "Country", "Regional indicator", "Happiness score", "year"])
     num_tests = len(df_numeric.columns)
     corrected_alpha = 0.05 / num_tests
+    corr_results = {}
     for col in df_numeric:
         r, p = stats.pearsonr(df_numeric[col], df["Happiness score"])
         if p < 0.05:
-            logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which confirms that the result is statistically significant")
             if p < corrected_alpha:
-                logger.info(f"The result is still statistically significant")
+                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which confirms that the result is statistically significant. The result is still statistically significant after alpha correction")
+                corr_results[col] = {"r": r, "p": p}
             else: 
-                logger.info(f"The result is statistically insignificant after checking against corrected alpha {corrected_alpha}")
+                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p}. The result appears statistically insignificant after checking against corrected alpha {corrected_alpha}")
         else:
             logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which is statistically insignificant")
+    logger.info(f"Correlations {corr_results}")
+    return corr_results
 
 @task
-def summary(df, stats, testing):
+def summary(df, stats, testing, corr_results):
     logger = get_run_logger()
     num_countries = df["Country"].nunique()
     num_years = df["year"].nunique()
     countries = stats["mean over countries"].sort_values(ascending=False)
+    max_corr = max(corr_results, key = lambda col: abs(corr_results[col]["r"]))
     logger.info(f"The dataset includes {num_countries} countries across {num_years} years.")
     logger.info(f"The contries that scored highest in happines are {countries.head(3)}, the countries that scored the lowest in happiness are {countries.tail(3)}")
     logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing["t_test"]}, p value = {testing["p_value"]})")
-    logger.info(f"Social support has the strongest correlation with happiness (r = 0.744, pp < .001)")
-
-
-
-                
+    logger.info(f"{max_corr} has the strongest correlation with happiness (r = {corr_results[max_corr]['r']}, p = {corr_results[max_corr]['p']})")
 
 @flow
 def pipeline():
@@ -138,8 +138,8 @@ def pipeline():
     stats = get_statistics(df)
     plots(df)
     testing = hypothesis(df)
-    correlation(df)
-    summary(df, stats, testing)
+    corr_results = correlation(df)
+    summary(df, stats, testing, corr_results)
   
 
 if __name__ == "__main__":
