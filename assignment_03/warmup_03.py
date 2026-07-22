@@ -132,6 +132,7 @@ plt.ylabel("Cumulative explained variance")
 plt.xlabel("Number of components")
 plt.grid(linestyle = '--', color = 'gray', alpha = 0.25, linewidth=0.5)
 plt.savefig("outputs/pca_variance_explained.png")
+plt.close()
 # To explain 80% of variance I need about 12 components
 
 # PCA Question 4
