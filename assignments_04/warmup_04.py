@@ -49,7 +49,7 @@ y_probs_knn = knn.predict_proba(X_test_scaled)[:, 1]
 auc_knn = roc_auc_score(y_test, y_probs_knn)
 print("Logistic Regression AUC: ", auc_lrm)
 print("KNN AUC: ", auc_knn)
-# KNN model has higher AUC. It better separates the two classes.
+# KNN model has higher AUC (0.94) than Logistic Regression (0.706). KNN better separates the two classes.
 
 # ROC Question 2
 fpr_lrm, tpr_lrm, thresholds_lrm = roc_curve(y_test, y_probs_lrm)
@@ -63,7 +63,7 @@ ax.legend()
 plt.tight_layout()
 plt.savefig("outputs/roc_comparison.png")
 plt.close()
-# The plot shows that KNN model has fewer FPR at TPR = 0.80. If I needed to catch 80% of positives, KNN model would produce fewer false alarms (less than 10%) 
+# The plot shows that KNN model has fewer FPR at TPR = 0.80 - 0.08 for KNN vs 0.6 for LR. If I needed to catch 80% of positives, KNN model would produce fewer false alarms (less than 10%) 
 
 # ROC Question 3
 best_f1 = 0
@@ -78,7 +78,7 @@ for i, threshold in enumerate(thresholds_lrm):
 print(f"Optimal threshold: {best_threshold:.2f}")
 print("TPR:", best_tpr)
 print("FPR:", best_fpr)
-print(f"F1:, {best_f1:.2f}")
+print(f"F1: {best_f1:.2f}")
 # The optimal threshold is equal to 0.28 which is lower than the default 0.5.  
 # In a real application, I would choose a threshold lower than 0.5 when missing a true positive is more costly than having some false positives.
 
