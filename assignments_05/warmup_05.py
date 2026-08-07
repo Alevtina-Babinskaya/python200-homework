@@ -182,8 +182,8 @@ print(get_completion(prompt))
 prompt = "Explain what a large language model is in two sentences."
 print(get_completion(prompt))
 
-# A large language model is a type of artificial intelligence that can understand and generate text, trained on vast amounts of human language. 
-# It excels at processing and generating natural language, making it invaluable for tasks like writing, communication, and content creation.
+"""A large language model is a type of artificial intelligence that can understand and generate text, trained on vast amounts of human language. 
+It excels at processing and generating natural language, making it invaluable for tasks like writing, communication, and content creation."""
 
 
 # The responce from Ollama is simplier and focuses on usage of LLM. The responce from Open AI contains more terms and describes the way LLM works. Also, Ollama showed 
