@@ -128,7 +128,7 @@ print(result[0][1])
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 print("\nKeyword Question 2:", query)
-simple_keyword_retrieval(query, documents, verbose=True)
+result = simple_keyword_retrieval(query, documents, verbose=True)
 print("\nAnswer:")
 print(result[0][1])
 # No documents were selected. menu.txt includes the information about coffee choices, 
@@ -139,7 +139,7 @@ print(result[0][1])
 query = "How do I sign up for rewards?"
 print("\nKeyword Question 3:", query)
 # Model won't select any documents because the only overlap in text is "for" which is excluded as stopword from text.
-simple_keyword_retrieval(query, documents, verbose=True)
+result = simple_keyword_retrieval(query, documents, verbose=True)
 print("\nAnswer:")
 print(result[0][1])
 # I predicted zero overlap and my prediction was correct. 
