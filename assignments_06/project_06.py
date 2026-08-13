@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from pathlib import Path
 from llama_index.core import SimpleDirectoryReader
-from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext, Settings
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
 
 if load_dotenv():
@@ -18,7 +18,7 @@ for d in docs:
 
 index = VectorStoreIndex.from_documents(docs)
 print("Index built successfully. Ready to answer questions.")
-query_engine = index.as_query_engine(tsimilarity_top_k = 3)
+query_engine = index.as_query_engine(similarity_top_k = 3)
 
 questions = [
     "What are Groundwork's hours on weekends?",

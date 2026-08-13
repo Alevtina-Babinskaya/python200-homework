@@ -118,22 +118,31 @@ documents = {
     "hiring.txt": "We are currently hiring baristas and shift supervisors. Send your resume to jobs@groundworkcoffee.com.",
     "loyalty.txt": "Join our loyalty program to earn one point per dollar spent. Redeem 100 points for a free drink of your choice.",
 }
-simple_keyword_retrieval(query, documents, verbose=True)
+print("\nKeyword Question 1:", query)
+result = simple_keyword_retrieval(query, documents, verbose=True)
+print("\nAnswer:")
+print(result[0][1])
 # loyalty.txt was selected as a best match, because 3 files of 4 has the same overlap score - 1. When "next" compares matches it first looks at scores. 
 # If scores are equal, it compares names. With reverse=True, loyalty.txt alphabetically comes first. 
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
+print("\nKeyword Question 2:", query)
 simple_keyword_retrieval(query, documents, verbose=True)
-# No documents were selected. Keyword RAG got it wrong. menu.txt includes the information about coffee choices, 
-# but text doesn't contain the exact information about caffeine - 0 overlaps.
+print("\nAnswer:")
+print(result[0][1])
+# No documents were selected. menu.txt includes the information about coffee choices, 
+# but text doesn't contain the exact word "caffeine" - 0 overlaps.
 # Semantic RAG would do better here, because it takes the words meaning into account, not just counts overlaps in words.
 
 # Keyword Question 3
 query = "How do I sign up for rewards?"
+print("\nKeyword Question 3:", query)
 # Model won't select any documents because the only overlap in text is "for" which is excluded as stopword from text.
 simple_keyword_retrieval(query, documents, verbose=True)
-# The prediction was correct. 
+print("\nAnswer:")
+print(result[0][1])
+# I predicted zero overlap and my prediction was correct. 
 
 # Semantic RAG Concepts
 # Semantic Question 1
@@ -206,17 +215,17 @@ for q in questions:
         print(f"Similarity Score: {node_with_score.score:.4f}")
         print(f"Text Snippet: {node_with_score.node.get_content()[:150]}...")
         print("-" * 30)
-# The retrieved chunks look relevant to the questions. They contain
-# information related to employee benefits for the first question and security policies for the second one. 
-# The most relevant chunks contain more specific information needed to answer each question. They also have the highest 
-# similarity scores.
-#
-# The model's responses sound confident and specific.
-# It gives an answer based on the retrieved information instead of using
-# phrases like "I'm not sure." This makes the response sound more trustworthy, even authoritive.
-# That kind of tone most likely will not leave any doubt.
-#
-# Less relevant chunks sometimes seem unrelevant to the question, though they have high similarity score.
+# Q1:
+# The retrieved chunks look relevant to the question because they contain
+# information about employee benefits. The model's response sounds confident
+# and specific and does not use phrases like "I'm not sure."
+# I did not notice anything unexpected in the retrieved chunks.
+
+# Q2:
+# The retrieved chunks look relevant because they contain information about
+# BrightLeaf's security policies. The model also sounds confident and specific.
+# Some less relevant chunks were retrieved even though they had relatively
+# high similarity scores.
 
 # LlamaIndex Question 2
 query_engine_1 = index.as_query_engine(similarity_top_k=1)
@@ -272,12 +281,14 @@ faithfulness_result = faithfulness_ev.evaluate_response(query=q1, response=respo
 print("Faithfulness Evaluation Q2: " + str(faithfulness_result.score))
 relevancy_result = relevancy_ev.evaluate_response(query=q1, response=response_ev1)
 print("Relevancy Result Q2: " + str(relevancy_result.score))
-# The faithfulness score of 1.0 means that RAG implementation passed the evaluation. 
-# The score of 0.0 indicates that RAG didn't pass the evaluation, and response is not reliable.
+# A faithfulness score of 1.0 means that the response is fully supported
+# by the retrieved context. A score of 0.0 means that the response is not
+# supported by the retrieved context.
 
-# A relevancy score measures how much a response relevant to the query. 
-# The faithfulness score shows how much response is relevant to the retrieved context. 
-# Both measure the quality of the response but used on different steps of the process.
+# Relevancy measures how well the response answers the user's question.
+# Faithfulness is about whether the answer is supported by the retrieved
+# information, while relevancy is about whether the answer actually
+# addresses the question. 
 
 # The scores for the two questions are different because the response to the first question 
 # can be easily retrieved from the context. The response for the second question is most likely missing
