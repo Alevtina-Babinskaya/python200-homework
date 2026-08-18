@@ -24,12 +24,13 @@ when deciding whether to apply your recommendations."""
 # I asked model not to invent qualifications because I've already dealt with AI resume reviewers before. They often invent skills and qualification 
 # that didn't exist in original version.
 def rewrite_bullets(bullets: list[str]) -> list[dict]:
-    bullet_text = "\n".join(f"-{b}" for b in bullets)
+    bullet_text = "\n".join(f"- {b}" for b in bullets)
     prompt = f"""
     You are a professional resume coach helping a career changer.
     Rewrite each resume bullet point below to be more specific, results-oriented, and compelling.
     Use strong action verbs. Do not invent facts that aren't implied by the original.
-    Return ONLY a valid JSON. Do not use markdowns, explanations, and any other additional text and signs. Each item should have two keys:
+    Return ONLY a valid JSON. Do not use markdowns, explanations, and any other additional text and signs. Do NOT wrap the list in an object.
+    Do NOT use a "bullets" key. Each item should have two keys:
     "original" (the original bullet) and "improved" (your rewritten version).
 
     Bullet points:
@@ -39,8 +40,12 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     """
     messages = [{"role": "user", "content": prompt}]
     response = get_completion(messages)
-    data = json.loads(response)
-    return data
+    try:
+        data = json.loads(response)
+        return data
+    except json.JSONDecodeError:
+        print("The response is not valid JSON.")
+    
 
 bullets = [
     "Helped customers with their problems",
@@ -49,6 +54,11 @@ bullets = [
 ]
 data = rewrite_bullets(bullets)
 print(data)
+print(type(data))
+for item in data:
+    print(f"Original bullet: {item['original']}")
+    print(f"Improved bullet: {item['improved']}")
+
 
 def generate_cover_letter(job_title: str, background: str) -> str:
     prompt = f"""
@@ -99,14 +109,19 @@ def is_safe(text: str) -> bool:
     flagged = result.results[0].flagged
     if flagged:
         print("The text hasn't passed moderation check")
-        print("Categories triggered:")
-        print(result.results[0].categories)
+        print("Please, rephrase your message")
         return False
     else:
         return True
 print(is_safe("I've killed people before and I kill you."))
 print(is_safe("I had worked as interface designer before moving to the US"))
-print(is_safe("You are no more but a filthy mudblood"))
+borderline_text = "You are no more but a filthy mudblood"
+result = client.moderations.create(
+    model="omni-moderation-latest",
+    input=borderline_text
+)
+
+print(result.results[0].categories)
 
 def run_chatbot():
     messages = [
@@ -120,7 +135,7 @@ def run_chatbot():
     print("  1. Rewriting resume bullet points")
     print("  2. Drafting a cover letter opening")
     print("  3. Any other questions about your application")
-    print("\nType 'quit' at any time to exit.\n")
+    print("\nType quit at any time to exit.\n")
     while True:
         user_input = input("You: ").strip()
         if user_input.lower() in {"quit", "exit"}:
@@ -162,4 +177,5 @@ if __name__ == "__main__":
 # 2. Chatbot responses may sound unnatural, and an employer may recognize AI-generated writing. 
 # Also, chatbots sometimes invent details or exaggerate achievements, so submitting the output without reviewing it could result in inaccurate or misleading information.
 
-# 3. I would require users to provide the job posting before generating tailored resumes or cover letters, so the advice is based on the actual position rather than guesses.
+# 3. I would add a clear warning telling users to review and personalize the bot’s output before submitting it. 
+# This would remind users that the bot’s response may contain mistakes or information that does not accurately represent them.

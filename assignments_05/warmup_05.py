@@ -112,15 +112,20 @@ reviews = [
     "The software crashes constantly and support never responds.",
     "Great price, but the documentation is nearly impossible to follow."
 ]
-prompt = f"Classify {reviews} as positive, negative, or mixed."
-print(get_completion(prompt))
+print("Zero-shot prompt")
+for i, r in enumerate(reviews, 1):
+    prompt = f"Classify {r} as positive, negative, or mixed."
+    print(f"Review #{i}: {get_completion(prompt)}")
+    i+= 1
 
 # Prompt Question 2 — One-Shot
+print("One-shot prompt")
 prompt = f"Classify {reviews} as positive, negative, or mixed. Example: Review: Fast shipping but the item arrived damaged. Sentiment: mixed"
 print(get_completion(prompt))
 # Adding one example changed the format of the output compared to Q1.
 
 # Prompt Question 3 — Few-Shot
+print("Few-shot prompt")
 prompt = f"""Classify {reviews} as positive, negative, or mixed. 
 Example 1: Review: Fast shipping but the item arrived damaged. Sentiment: mixed. 
 Example 2: Review: The service was extremely good, the staff was helpful. Sentiment: Positive. 
@@ -144,6 +149,7 @@ but the UI is clunky and the export options are limited."
 prompt = f"""Analyze the review below and return the result only as valid JSON with keys sentiment, confidence (a float from 0 to 1), and reason (one sentence).
 Review: {review}"""
 resp_data = get_completion(prompt)
+print(resp_data)
 try:
     data = json.loads(resp_data)
     print("Sentiment: ", data['sentiment'])
@@ -180,9 +186,9 @@ print(get_completion(prompt))
 # Local Models with Ollama
 # Ollama Question 1
 prompt = "Explain what a large language model is in two sentences."
-print(get_completion(prompt))
+print("Open AI response: ", get_completion(prompt))
 
-"""A large language model is a type of artificial intelligence that can understand and generate text, trained on vast amounts of human language. 
+"""Ollama response: A large language model is a type of artificial intelligence that can understand and generate text, trained on vast amounts of human language. 
 It excels at processing and generating natural language, making it invaluable for tasks like writing, communication, and content creation."""
 
 
