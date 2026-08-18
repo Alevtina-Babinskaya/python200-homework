@@ -157,11 +157,15 @@ def run_chatbot():
                     raw_bullets.append(line)
             response = rewrite_bullets(raw_bullets)
             print(response)
+            messages.append({"role": "user", "content": raw_bullets})
+            messages.append({"role": "assistant", "content": response})
         elif "cover letter" in user_input.lower():
             job_title = input("Job Application Helper: What is the job title? ").strip()
             background = input("Job Application Helper: Briefly describe your background: ").strip()
+            messages.append({"role": "user", "content": user_input})
             response = generate_cover_letter(job_title, background)
             print(response)
+            messages.append({"role": "assistant", "content": response})
         else:
             messages.append({"role": "user", "content": user_input})
             response = get_completion(messages)

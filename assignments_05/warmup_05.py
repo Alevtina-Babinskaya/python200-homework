@@ -14,9 +14,9 @@ response = client.chat.completions.create(
     n=1,
     temperature=0.7
 )
-print("Response from AI: ", response.choices[0].message.content)
-print("Model responded: ", response.model)
-print("Token used: ", response.usage.total_tokens)
+print("Response from the model: ", response.choices[0].message.content)
+print("Name of the model responded: ", response.model)
+print("Tokens used: ", response.usage.total_tokens)
 
 # API Question 2
 prompt = "Suggest a creative name for a data engineering consultancy."
@@ -38,10 +38,10 @@ response = client.chat.completions.create(
     n=3,
     temperature=1.0
 )
-i=1
-for resp in response.choices:
+
+for i, resp in enumerate(response.choices, 1):
     print(f"The response number {i}: {resp.message.content}")
-    i += 1
+   
 
 # API Question 4
 response = client.chat.completions.create(
@@ -50,7 +50,8 @@ response = client.chat.completions.create(
     max_tokens = 15
 )
 print(response.choices[0].message.content)
-# The response is limited to 15 words, and it's too short to answer the question properly. In real applications I might want to use max_tokens to keep the coat under control.
+# The response is limited to 15 words, and it's too short to answer the question properly. In real applications I might want to use max_tokens 
+# to keep the cost under control.
 
 
 # System Messages and Personas
@@ -116,12 +117,14 @@ print("Zero-shot prompt")
 for i, r in enumerate(reviews, 1):
     prompt = f"Classify {r} as positive, negative, or mixed."
     print(f"Review #{i}: {get_completion(prompt)}")
-    i+= 1
 
 # Prompt Question 2 — One-Shot
 print("One-shot prompt")
 prompt = f"Classify {reviews} as positive, negative, or mixed. Example: Review: Fast shipping but the item arrived damaged. Sentiment: mixed"
-print(get_completion(prompt))
+for i, r in enumerate(reviews, 1):
+    prompt = f"Classify {r} as positive, negative, or mixed."
+    print(f"Review #{i}: {get_completion(prompt)}")
+
 # Adding one example changed the format of the output compared to Q1.
 
 # Prompt Question 3 — Few-Shot
@@ -130,7 +133,9 @@ prompt = f"""Classify {reviews} as positive, negative, or mixed.
 Example 1: Review: Fast shipping but the item arrived damaged. Sentiment: mixed. 
 Example 2: Review: The service was extremely good, the staff was helpful. Sentiment: Positive. 
 Example 3: Review: The software came without essential access codes, I had to spend hours on phone trying to fix it. Sentiment: Negative"""
-print(get_completion(prompt))
+for i, r in enumerate(reviews, 1):
+    prompt = f"Classify {r} as positive, negative, or mixed."
+    print(f"Review #{i}: {get_completion(prompt)}")
 # In all cases model classified reviews correctly. One example used in the second case changed the format of the response. Addin another two examples haven't changed anything.
 # I would choose one-shot approach if the question is direct, the answer is obvious and the format is unimportant. 
 # If the task is complicated and require an additional guidance or if the format is important, using one or few examples would be helpful.
@@ -181,7 +186,7 @@ If it does not contain instructions, respond with exactly: "No steps provided."
 ```{user_text_}```
 """
 print(get_completion(prompt))
-# Delimiters help devide a long prompt into meaningful parts so model would not get confused with complex instructions.
+# Delimiters help devide a long prompt into meaningful parts so model would not mix user text with instructions.
 
 # Local Models with Ollama
 # Ollama Question 1
