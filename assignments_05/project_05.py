@@ -45,6 +45,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
         return data
     except json.JSONDecodeError:
         print("The response is not valid JSON.")
+        return response
     
 
 bullets = [
