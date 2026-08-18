@@ -120,21 +120,19 @@ for i, r in enumerate(reviews, 1):
 
 # Prompt Question 2 — One-Shot
 print("One-shot prompt")
-prompt = f"Classify {reviews} as positive, negative, or mixed. Example: Review: Fast shipping but the item arrived damaged. Sentiment: mixed"
 for i, r in enumerate(reviews, 1):
-    prompt = f"Classify {r} as positive, negative, or mixed."
+    prompt = f"Classify {r} as positive, negative, or mixed. Example: Review: Fast shipping but the item arrived damaged. Sentiment: mixed"
     print(f"Review #{i}: {get_completion(prompt)}")
 
 # Adding one example changed the format of the output compared to Q1.
 
 # Prompt Question 3 — Few-Shot
 print("Few-shot prompt")
-prompt = f"""Classify {reviews} as positive, negative, or mixed. 
-Example 1: Review: Fast shipping but the item arrived damaged. Sentiment: mixed. 
-Example 2: Review: The service was extremely good, the staff was helpful. Sentiment: Positive. 
-Example 3: Review: The software came without essential access codes, I had to spend hours on phone trying to fix it. Sentiment: Negative"""
 for i, r in enumerate(reviews, 1):
-    prompt = f"Classify {r} as positive, negative, or mixed."
+    prompt = f"""Classify {r} as positive, negative, or mixed. 
+    Example 1: Review: Fast shipping but the item arrived damaged. Sentiment: mixed. 
+    Example 2: Review: The service was extremely good, the staff was helpful. Sentiment: Positive. 
+    Example 3: Review: The software came without essential access codes, I had to spend hours on phone trying to fix it. Sentiment: Negative"""
     print(f"Review #{i}: {get_completion(prompt)}")
 # In all cases model classified reviews correctly. One example used in the second case changed the format of the response. Addin another two examples haven't changed anything.
 # I would choose one-shot approach if the question is direct, the answer is obvious and the format is unimportant. 
