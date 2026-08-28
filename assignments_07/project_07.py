@@ -5,6 +5,7 @@ from pathlib import Path
 import scipy
 import os
 from prefect import task, flow
+from dotenv import load_dotenv
 
 
 DATA_PATH = "assignments_01/outputs/merged_happiness.csv"
@@ -135,6 +136,10 @@ def my_queries(agent):
 # The tool that loads and returns the dataset would be helpful. Agent got confused and produced errors because loading tool returns dictionary, not data.
 @flow
 def pipeline():
+    if load_dotenv():
+        print('Successfully loaded environment variables from .env')
+    else:
+        print('Warning: could not load environment variables from .env')
     api_key=os.environ["OPENAI_API_KEY"]
     model = OpenAIServerModel(api_key=api_key, model_id="gpt-4o-mini")
 
