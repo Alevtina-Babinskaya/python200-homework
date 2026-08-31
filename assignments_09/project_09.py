@@ -56,22 +56,20 @@ else:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 sup_response = supabase.table("weather_raw").upsert(records, on_conflict="date").execute()
-print(f"{len(sup_response.data)} rows were inserted in the table")
+print(f"{len(sup_response.data)} rows were inserted in the table. This is the clear confirmation message showing how many rows were upserted.")
 
 sup_response = supabase.table("weather_raw").select("*", count="exact").execute()
-print(f"{sup_response.count} rows were selected")
+print(f"{sup_response.count} rows are in the table")
 # Second run went smoothly without errors and the number of rows didn't change, so no dublicate data were inserted. The code is idempotent.
 # sup_response_latest_date = 
-print(f"The earliest record: {sup_response.data[0]}")
-print(f"The latest record: {sup_response.data[-1]}")
+print(f"The earliest date: {sup_response.data[0]["date"]}")
+print(f"The latest date: {sup_response.data[-1]["date"]}")
 target_date = "2023-07-04"
 row_selected = next(
     (row for row in sup_response.data if row["date"] == target_date), 
     None)
-if row_selected is None:
-    
-    for row in sup_response.data:
-        row_selected = min(sup_response.data, key=lambda row: abs(datetime.strptime(row["date"], "%Y-%m-%d") - datetime.strptime(target_date, "%Y-%m-%d")))
+if row_selected is None:    
+    row_selected = min(sup_response.data, key=lambda row: abs(datetime.strptime(row["date"], "%Y-%m-%d") - datetime.strptime(target_date, "%Y-%m-%d")))
 print(f"Record for date {target_date}: {row_selected}")
 
 
