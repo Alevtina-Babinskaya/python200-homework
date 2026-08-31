@@ -8,6 +8,7 @@
 # ----- Connection Question 2 ------
 from dotenv import load_dotenv
 import os
+from datetime import date
 from supabase import create_client
 def get_client():
     if load_dotenv():
@@ -34,8 +35,9 @@ def get_client():
 # ------- supabase-py CRUD -----------
 # ---- CRUD Question 1 ------
 def insert_test_record(supabase):
+    today = date.today().isoformat()
     row = { 
-        "date":               "2026-08-28",
+        "date":               today,
         "temperature_2m_max": 26,
         "temperature_2m_min": 14,
         "precipitation_sum":  0.04,

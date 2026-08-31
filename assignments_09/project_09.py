@@ -22,6 +22,10 @@ params = {
 response = requests.get(url, params = params)
 response.raise_for_status()
 data = response.json()
+
+print(f"Number of days: {len(response.json()['daily']['time'])}")
+print("First date:", data["daily"]["time"][0])
+print("Last date:", data["daily"]["time"][-1])
 daily = data["daily"]
 
 records = [{
@@ -58,12 +62,11 @@ else:
 sup_response = supabase.table("weather_raw").upsert(records, on_conflict="date").execute()
 print(f"{len(sup_response.data)} rows were inserted in the table. This is the clear confirmation message showing how many rows were upserted.")
 
-sup_response = supabase.table("weather_raw").select("*", count="exact").execute()
-print(f"{sup_response.count} rows are in the table")
+sup_response = supabase.table("weather_raw").select("*").execute()
 # Second run went smoothly without errors and the number of rows didn't change, so no dublicate data were inserted. The code is idempotent.
-# sup_response_latest_date = 
-print(f"The earliest date: {sup_response.data[0]["date"]}")
-print(f"The latest date: {sup_response.data[-1]["date"]}")
+print(f"Total rows after second run: {len(sup_response.data)}")
+print(f"The earliest date: {sup_response.data[0]['date']}")
+print(f"The latest date: {sup_response.data[-1]['date']}")
 target_date = "2023-07-04"
 row_selected = next(
     (row for row in sup_response.data if row["date"] == target_date), 
