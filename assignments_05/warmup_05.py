@@ -49,9 +49,9 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Explain how neural networks work."}],
     max_tokens = 15
 )
-print(response.choices[0].message.content)
-# The response is limited to 15 words, and it's too short to answer the question properly. In real applications I might want to use max_tokens 
-# to keep the cost under control.
+print("Response for 15 tokens:", response.choices[0].message.content)
+# The response from the model: Neural networks are a subset of machine learning models inspired by the structure and
+# The response is limited to 14 words, which is too short to answer the question properly. In real applications, I might use `max_tokens` to keep costs under control.
 
 
 # System Messages and Personas
@@ -66,7 +66,7 @@ response = client.chat.completions.create(
     messages=messages,
     max_tokens= 300
 )
-print("The response from Python tutor", response.choices[0].message.content)
+print("The response from Python tutor (300 tokens)", response.choices[0].message.content)
 messages1 = [
     {"role": "system", "content": "You are a middle school teacher explaining Python to a student. Use simple analogies, avoid technical words, and explain like the student is 12 years old."},
     {"role": "user", "content": "I don't understand what a list comprehension is."}
@@ -113,10 +113,8 @@ reviews = [
     "The software crashes constantly and support never responds.",
     "Great price, but the documentation is nearly impossible to follow."
 ]
-print("Zero-shot prompt")
-for i, r in enumerate(reviews, 1):
-    prompt = f"Classify {r} as positive, negative, or mixed."
-    print(f"Review #{i}: {get_completion(prompt)}")
+prompt = f"Classify {reviews} as positive, negative, or mixed."
+print(""get_completion(prompt))
 
 # Prompt Question 2 — One-Shot
 print("One-shot prompt")
