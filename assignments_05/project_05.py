@@ -42,10 +42,19 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     response = get_completion(messages)
     try:
         data = json.loads(response)
+        if not isinstance(data, list):
+            raise ValueError("Expected a JSON list.")
+
+        for item in data:
+            print(f"Original:  {item['original']}")
+            print(f"Improved:  {item['improved']}")
+            print()
+
         return data
-    except json.JSONDecodeError:
-        print("The response is not valid JSON.")
-        return response
+
+    except (json.JSONDecodeError, ValueError, KeyError) as e:
+        print(f"Could not parse the response as a valid JSON list: {e}")
+        return []
     
 
 bullets = [
@@ -54,11 +63,7 @@ bullets = [
     "Worked with a team to finish the project on time"
 ]
 data = rewrite_bullets(bullets)
-print(data)
-print(type(data))
-for item in data:
-    print(f"Original bullet: {item['original']}")
-    print(f"Improved bullet: {item['improved']}")
+
 
 
 def generate_cover_letter(job_title: str, background: str) -> str:
@@ -101,6 +106,10 @@ background = "Five years of experience as a middle school math teacher; recently
 a Python course and built data pipelines using Prefect and Pandas."
 data = generate_cover_letter(job_title, background)
 print(data)
+# I didn't choose these examples; they were provided in the task. They are useful
+# because they demonstrate how to connect previous experience with a new career
+# while keeping the tone confident, specific, and free of clichés. 
+# The few-shot pattern helps control the tone, structure, and specificity of the generated response.
 
 def is_safe(text: str) -> bool:
     result = client.moderations.create(
@@ -157,9 +166,7 @@ def run_chatbot():
                 if line:
                     raw_bullets.append(line)
             response = rewrite_bullets(raw_bullets)
-            print(response)
-            messages.append({"role": "user", "content": user_input + "\n" + "\n".join(raw_bullets)})
-            messages.append({"role": "assistant", "content": json.dumps(response)})
+            messages.append({"role": "assistant", "content": response})
         elif "cover letter" in user_input.lower():
             job_title = input("Job Application Helper: What is the job title? ").strip()
             background = input("Job Application Helper: Briefly describe your background: ").strip()

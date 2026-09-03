@@ -114,7 +114,7 @@ reviews = [
     "Great price, but the documentation is nearly impossible to follow."
 ]
 prompt = f"Classify {reviews} as positive, negative, or mixed."
-print(""get_completion(prompt))
+print("The zero-shot response: ", get_completion(prompt))
 
 # Prompt Question 2 — One-Shot
 print("One-shot prompt")
@@ -147,7 +147,8 @@ print(get_completion(prompt))
 # Prompt Question 5 — Structured Output
 review = "I've been using this tool for three months. It handles large datasets well, \
 but the UI is clunky and the export options are limited."
-prompt = f"""Analyze the review below and return the result only as valid JSON with keys sentiment, confidence (a float from 0 to 1), and reason (one sentence).
+prompt = f"""Analyze the review below and return the result only as valid JSON with keys sentiment, confidence (a float from 0 to 1), and reason (one sentence). 
+Do not use markdowns, explanations, and any other additional text and signs. Do NOT wrap the list in an object. Do NOT use a "bullets" key.
 Review: {review}"""
 resp_data = get_completion(prompt)
 print(resp_data)
@@ -191,10 +192,12 @@ print("Open AI response: ", get_completion(prompt))
 
 """Ollama response: A large language model is a type of artificial intelligence that can understand and generate text, trained on vast amounts of human language. 
 It excels at processing and generating natural language, making it invaluable for tasks like writing, communication, and content creation."""
+"""Open AI response:  A large language model is an artificial intelligence system designed to understand and generate human-like text by analyzing vast amounts of 
+written data. It uses deep learning techniques, particularly neural networks, to predict and produce coherent and contextually relevant language based on 
+the input it receives."""
 
-
-# The responce from Ollama is simplier and focuses on usage of LLM. The responce from Open AI contains more terms and describes the way LLM works. Also, Ollama showed 
-# reasoning behind the response.
+# The responces from both models look pretty similar. The response from Ollama is simplier and focuses on usage of LLM. 
+# The responce from Open AI contains more terms and describes the way LLM works. 
 
 # The advantage of running a model locally is that there are no API fees.
 # The disadvantages are that it uses your computer's resources and the model must be updated manually from time to time.
