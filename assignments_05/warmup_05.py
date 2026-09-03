@@ -113,8 +113,10 @@ reviews = [
     "The software crashes constantly and support never responds.",
     "Great price, but the documentation is nearly impossible to follow."
 ]
-prompt = f"Classify {reviews} as positive, negative, or mixed."
-print("The zero-shot response: ", get_completion(prompt))
+print("Zero-shot prompt")
+for i, r in enumerate(reviews, 1):
+    prompt = f"Classify {r} as positive, negative, or mixed."
+    print(f"Review #{i}: {get_completion(prompt)}")
 
 # Prompt Question 2 — One-Shot
 print("One-shot prompt")
