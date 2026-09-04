@@ -8,6 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -86,9 +87,12 @@ print(classification_report(y_test, dtc_predicted))
 # Logistic Regression Question 1
 c_values = [0.01, 1.0, 100]
 for c in c_values:
-    log_reg = LogisticRegression(C=c, max_iter = 1000)
-    log_reg.fit(X_train_scaled, y_train)
-    coef_sum = np.abs(log_reg.coef_).sum()
+    model = OneVsRestClassifier(LogisticRegression(C=c, max_iter = 1000, solver="liblinear"))
+    model.fit(X_train_scaled, y_train)
+    coef_sum = sum(
+        np.abs(estimator.coef_).sum()
+        for estimator in model.estimators_
+    )
     print(f"C value: {c}, the coefficient size: {coef_sum}")
 # The total coefficient magnitude increases as C increases. 
 # Regularization stabilizes the model by controlling the weight coefficients. Stronger regularization (smaller C) keeps the coefficients smaller,
@@ -111,6 +115,7 @@ for digit in range(10):
     index = np.where(y_digits == digit)[0][0]
     axes[digit].imshow(images[index], cmap = 'gray_r', vmin = 0, vmax = 16)
     axes[digit].axis("off")
+    axes[digit].set_title(digit)
 plt.savefig("outputs/sample_digits.png")
 plt.close()
 
