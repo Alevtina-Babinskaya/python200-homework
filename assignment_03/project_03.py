@@ -187,7 +187,7 @@ for depth in [3, 5, 10, None]:
 dtc = DecisionTreeClassifier(max_depth = None, random_state = 42)
 dtc.fit(X_train, y_train)
 pred_final = dtc.predict(X_test)
-print("Accuracy:", accuracy_score(y_test, pred_final))
+print("Accuracy (max_depth = none):", accuracy_score(y_test, pred_final))
 print(classification_report(y_test, pred_final))
 dt_importance = pd.DataFrame({"feature": X_train.columns, "importance": dtc.feature_importances_})
 dt_importance = dt_importance.sort_values(by="importance", ascending = False)
@@ -198,8 +198,8 @@ print(dt_importance.head(10))
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 rf_pred = rf.predict(X_test)
-print("Accuracy rf:", accuracy_score(y_test, pred))
-print(classification_report(y_test, pred))
+print("Accuracy Random Forest Classifier:", accuracy_score(y_test, rf_pred))
+print(classification_report(y_test, rf_pred))
 rf_importance = pd.DataFrame({"feature": X_train.columns, "importance": rf.feature_importances_})
 rf_importance = rf_importance.sort_values(by="importance", ascending = False)
 top_10_features = rf_importance.head(10)
@@ -225,18 +225,18 @@ log_reg.fit(X_train_pca, y_train)
 lg_pred_pca = log_reg.predict(X_test_pca)
 print("Accuracy logistic regression pca:", accuracy_score(y_test, lg_pred_pca))
 print(classification_report(y_test, lg_pred_pca))
-# The classifiers performed better on scaled data than on PCA-transformed data.
+# The classifiers performed better on scaled data than on PCA-transformed data. But the difference is insignificant.
 # PCA did not improve performance, possibly because the original features did not contain strong correlations or 
 # because reducing the feature space removed some useful information.
 
-# The best accuracy was achieved by the Logistic Regression classifier on scaled data.
+# The best accuracy was achieved by the Random Forrest classifier: 0.946.
 
 # For spam detection, accuracy alone is not the best metric to optimize. Minimizing false positives is especially important because 
 # ham emails incorrectly marked as spam may cause users to miss important messages. 
 # However, false negatives should also be considered because allowing spam through reduces the usefulness of the filter.
 # The model achieved a spam precision of 0.92, meaning that most emails classified as spam were actually spam, reducing false positives. 
 # Its spam recall was 0.90, meaning some spam messages still passed through.
-cm = confusion_matrix(y_test, lg_pred)
+cm = confusion_matrix(y_test, rf_pred)
 labels = ["spam", "ham"]
 disp = ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = labels)
 disp.plot()
@@ -249,14 +249,18 @@ plt.close()
 models = [knn, dtc, rf, log_reg]
 
 for model in models:
-    cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=5)
+    cv_scores = cross_val_score(model, X_train, y_train, cv=5)
     print(f"Mean {model}: {cv_scores.mean():.3f}")
     print(f"Std {model}:  {cv_scores.std():.3f}")
+# Random Forrest classifier is the most accurate.
+# Logistic Regression Classifier is the most stable. Ranking doesn't match the single train/test split. 
+# Decision Tree classifier showed lower accuracy than on single split, though Random Forrest classifier showed higher accuracy than on single split. 
+
 
 # Task 5
 
 log_reg_pipeline = Pipeline([("scaler", StandardScaler()), ("classifier", LogisticRegression(C=1.0, max_iter=1000, solver='liblinear'))]) 
-log_reg_pipeline.fit(X_train, y_train)
+log_reg_pipeline.fit(X_train, y_train) # I am not using PCA here because it didn't improve Logistic Regression 
 lgp_pipe_pred = log_reg_pipeline.predict(X_test)
 
 rf_pipeline = Pipeline([("classifier", RandomForestClassifier(n_estimators=100, random_state=42))]) 
