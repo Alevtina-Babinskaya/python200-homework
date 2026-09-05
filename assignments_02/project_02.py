@@ -24,7 +24,8 @@ plt.close()
 print(st_perf_df.shape)
 st_perf_df_cleaned = st_perf_df[st_perf_df["G3"] != 0] # Keeping these rows would distort the model, because they don't actually present the real grades
 print(st_perf_df_cleaned.shape)
-st_perf_df_cleaned[["schoolsup", "internet", "higher", "activities"]] = st_perf_df_cleaned[["schoolsup", "internet", "higher", "activities"]].replace({"yes": 1, "no": 0})
+cols = ["schoolsup", "internet", "higher", "activities"]
+st_perf_df_cleaned.loc[:, cols] = (st_perf_df_cleaned.loc[:, cols].replace({"yes": 1, "no": 0}))
 st_perf_df_cleaned["sex"] = st_perf_df_cleaned["sex"].replace({"F": 0, "M": 1})
 print(st_perf_df_cleaned.head())
 r1 = st_perf_df["G3"].corr(st_perf_df["absences"])
