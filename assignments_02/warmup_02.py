@@ -28,15 +28,46 @@ print("X:", X.shape)
 # In case it 1D array, the list of numbers can present either samples or features.
 
 #scikit-learn Question 3
-X_clusters, _ = make_blobs(n_samples=120, centers=3, cluster_std=0.8, random_state=7)
-kmeans = KMeans(n_clusters = 3, random_state = 42)
+X_clusters, _ = make_blobs(
+    n_samples=120,
+    centers=3,
+    cluster_std=0.8,
+    random_state=7
+)
+
+kmeans = KMeans(n_clusters=3, random_state=42)
+
 kmeans.fit(X_clusters)
+
 labels = kmeans.predict(X_clusters)
+
 print("Cluster centers", kmeans.cluster_centers_)
 print("Number of points", np.bincount(labels))
-plt.scatter(X_clusters[:, 0], X_clusters[:, 1], c = labels, cmap = 'viridis', s = 60, alpha = 0.7)
-plt.title("Data clusters found by K-Means")
+
+plt.scatter(
+    X_clusters[:, 0],
+    X_clusters[:, 1],
+    c=labels,
+    cmap="viridis",
+    s=60,
+    alpha=0.7
+)
+
+# Plot cluster centers as black X's
+plt.scatter(
+    kmeans.cluster_centers_[:, 0],
+    kmeans.cluster_centers_[:, 1],
+    marker="X",
+    c="black",
+    s=200
+)
+
+plt.title("K-Means Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+
 plt.savefig("outputs/kmeans_clusters.png")
+plt.close()
 
 # Linear regression
 np.random.seed(42)
@@ -70,6 +101,7 @@ print("Slope:", model.coef_[0])
 print("Intercept:", model.intercept_)
 print("RMSE:", np.sqrt(np.mean((y_pred - y_test) ** 2)))
 print("r2:", model.score(X_test, y_test))
+
 # The slope means that the cost increases by the slope value for each additional year of age.
 # r2 is very low because data falls into two groups smokers and non-smokers, and we don't use this variable here.
 
