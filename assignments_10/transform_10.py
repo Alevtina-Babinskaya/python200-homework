@@ -1,4 +1,4 @@
-# https://youtu.be/eMAQEnLXCWk
+# The link for video presentation: https://youtu.be/eMAQEnLXCWk
 import json
 import os
 import pandas as pd
@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from supabase import create_client
 import joblib
 from openai import OpenAI
-import numpy as np
+import re
 with open("assignments_10/models/weather_classifier_metadata.json") as f:
     metadata = json.load(f)
 FEATURES = metadata["features"]
@@ -57,8 +57,7 @@ def validate_summary(text):
     text = text.strip()
     if not text:
         return None
-    # Reject if more than two sentences (simple heuristic)
-    sentences = [s for s in text.split(".") if s.strip()]
+    sentences = re.split(r'(?<!\d)\.(?!\d)', text) # splits text into sentenses by '.' ignoring them in numbers 
     if len(sentences) > 2:
         return None
     return text
@@ -79,7 +78,7 @@ for i, row in enumerate(enrichment_data):
             ],
             max_tokens=100,
         )
-        summary = llm_response.choices[0].message.content.strip()
+        summary = validate_summary(llm_response.choices[0].message.content.strip())
         
     except Exception as e:
         print(f"  API error on {row['date']}: {e}")
