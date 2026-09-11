@@ -139,17 +139,9 @@ plt.show()
 # Descriptive Stats Question 4
 normal_data = np.random.normal(50, 5, 200)
 skewed_data = np.random.exponential(10, 200)
-fig, axes = plt.subplots(1, 2)
-axes[0].boxplot(normal_data, bins=30, color="skyblue", edgecolor="black")
-axes[0].set_title("Normal Distribution")
-axes[0].set_xlabel("Value")
-axes[0].set_ylabel("Frequency")
-
-axes[1].boxplot(skewed_data, bins=30, color="pink", edgecolor="black")
-axes[1].set_title("Exponential Distribution")
-axes[1].set_xlabel("Value")
-axes[1].set_ylabel("Frequency")
-fig.suptitle("Distribution Comparison")
+plt.boxplot( [normal_data, skewed_data], labels=["Normal", "Exponential"])
+plt.title("Distribution Comparison")
+plt.ylabel("Value")
 plt.tight_layout()
 plt.show()
 
@@ -158,7 +150,7 @@ data1 = [10, 12, 12, 16, 18]
 data2 = [10, 12, 12, 16, 150]
 print(f"Data 1: Mean - {np.mean(data1)}, Median - {np.median(data1)}, Mode - {stats.mode(data1)}")
 print(f"Data 2: Mean - {np.mean(data2)}, Median - {np.median(data2)}, Mode - {stats.mode(data2)}")
-# In data2 median is so different from mean because data contains an outlier 150 that skews average value
+# In data2 median is so different from mean because data contains an outlier 150 that skews average value and pull the mean higher than the median.
 
 # Hypothesis Question 1 
 group_a = [72, 68, 75, 70, 69, 73, 71, 74]
@@ -169,9 +161,9 @@ print(f"P value: {p_value}")
 
 # Hypothesis Question 2 
 if p_value < 0.05:
-    print("The result is statistically significant")
+    print("The result is statistically significant. The group A mean is significantly different from group B mean.")
 else:
-    print("The result is statistically unsignificant")
+    print("The result is statistically unsignificant. There is not enough evidence to conclude that the means of Group A and Group B are different.")
 
 # Hypothesis Question 3
 before = [60, 65, 70, 58, 62, 67, 63, 66]
@@ -191,14 +183,14 @@ t_test, p_value = stats.ttest_ind(group_a, group_b, alternative="less")
 print(f"P value one tailed: {p_value}")
 
 # Hypothesis Question 6
-print("The results suggest that Group B has a higher average score than Group A, and this difference is very unlikely to be due to chance.")
+print("The results suggest that Group B has a higher average score than Group A, and this difference is statistically significant and unlikely to be due to chance.")
 
 # Correlation Question 1
 x = [1, 2, 3, 4, 5]
 y = [2, 4, 6, 8, 10]
 corr_matrix = np.corrcoef(x, y)
 print(f"Correlation: {corr_matrix}")
-print(corr_matrix[0, 1]) # Looking at the data I expected strong positive correlation
+print(corr_matrix[0, 1]) # Looking at the data I expected strong positive correlation, as list 2 is practically values of list 1 multiplied by 2.
 
 # Correlation Question 2
 x = [1,  2,  3,  4,  5,  6,  7,  8,  9, 10]
