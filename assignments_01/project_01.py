@@ -7,7 +7,7 @@ import seaborn as sns
 import statistics as stats
 from scipy import stats
 
-@task
+@task(retries=3, retry_delay_seconds=2)
 def load_data(link, filename):
     logger = get_run_logger()
     dfs = []
@@ -32,7 +32,7 @@ def clean_data(df):
     logger.info("Data cleaned")   
     return df
 
-@task(retries=3, retry_delay_seconds=2)
+@task
 def save_data(df):
     logger = get_run_logger()
     path = "assignments_01/outputs/merged_happiness.csv"
