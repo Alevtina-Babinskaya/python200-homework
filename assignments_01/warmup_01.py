@@ -24,7 +24,7 @@ print(f"Data types: {df.dtypes}")
 print(df[(df["passed"] == True) & (df["grade"] > 80)])
 
 # Pandas Q3
-df["grade_curve"] = df["grade"] + 5
+df["grade_curved"] = df["grade"] + 5
 print(df)
 
 # Pandas Q4

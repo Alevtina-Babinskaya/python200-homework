@@ -93,11 +93,11 @@ def hypothesis(df):
     mean_2020 = scores_2020.mean()
     logger.info(f"Mean happiness in 2019: {mean_2019:.3f}")
     logger.info(f"Mean happiness in 2020: {mean_2020:.3f}")
-    t_test, p_value = stats.ttest_ind(scores_2019, scores_2020, alternative="less")
+    t_test, p_value = stats.ttest_ind(scores_2019, scores_2020)
     if p_value < 0.05:
-        logger.info(f"The difference in happiness score between 2019 and 2020 years is statistically significant (t-test = {t_test}, p value = {p_value})")
+        logger.info(f"The mean happiness score changed significantly from {mean_2019:.3f} in 2019 to {mean_2020:.3f} in 2020.")
     else:
-        logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {t_test}, p value = {p_value})")
+        logger.info( f"There is not enough statistical evidence to conclude that global happiness scores changed between 2019 and 2020.")
 
     scores_switzerland = df[df["Country"] == "Switzerland"]["Happiness score"]
     scores_iran = df[df["Country"] == "Iran"]["Happiness score"]
@@ -146,8 +146,9 @@ def summary(df, stats, testing, corr_results):
     num_regions = df["Regional indicator"].nunique()
     num_years = df["year"].nunique()
     regions = stats["mean over regions"].sort_values(ascending=False)
-    max_corr = corr_results.loc[corr_results["r"].idxmax()]
-    logger.info(f"The dataset includes {num_regions} countries across {num_years} years.")
+    significant_corr = corr_results[corr_results["significant_after_bonferroni"]]
+    max_corr = significant_corr.loc[significant_corr["r"].abs().idxmax()]
+    logger.info(f"The dataset includes {num_regions} regions across {num_years} years.")
     logger.info(f"The regions that scored highest in happines are {regions.head(3)}, the regions that scored the lowest in happiness are {regions.tail(3)}")
     logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing['t_test']}, p value = {testing['p_value']})")
     logger.info(f"{max_corr["variable"]} has the strongest correlation with happiness (r = {max_corr['r']}, p = {max_corr['p']})")
