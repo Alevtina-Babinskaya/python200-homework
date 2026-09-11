@@ -9,28 +9,35 @@ from scipy import stats
 
 @task
 def load_data(link, filename):
+    logger = get_run_logger()
     dfs = []
     path = link + filename
     for year in range(2015, 2025):
+        logger.info("Starting loading the data")
         data = pd.read_csv(path + str(year) + ".csv", sep = ";")
         data = data.rename(columns={"Ladder score": "Happiness score"})
         data["year"] = year
         dfs.append(data)
+    logger.info("Data loading complete")
     return pd.concat(dfs, ignore_index = True)
 
 @task
 def clean_data(df):
+    logger = get_run_logger()
     df = df.map(lambda x: x.replace('"', '').replace(',', '.') if isinstance(x, str) else x)
     for col in df.columns:
         if col not in ["Country", "Regional indicator"]:
             df[col] = pd.to_numeric(df[col], errors = "coerce")
-    df["Healthy life expectancy"] = df["Healthy life expectancy"].fillna(df.groupby("Country")["Healthy life expectancy"].transform("mean"))   
+    df["Healthy life expectancy"] = df["Healthy life expectancy"].fillna(df.groupby("Country")["Healthy life expectancy"].transform("mean"))
+    logger.info("Data cleaned")   
     return df
 
 @task(retries=3, retry_delay_seconds=2)
 def save_data(df):
+    logger = get_run_logger()
     path = "assignments_01/outputs/merged_happiness.csv"
     df.to_csv(path, index = False)
+    logger.info("Data saved")
 
 @task 
 def get_statistics(df):
@@ -39,9 +46,9 @@ def get_statistics(df):
     median = np.median(df["Happiness score"])
     std = np.std(df["Happiness score"])
     mean_by_year = df.groupby("year")["Happiness score"].mean()
-    mean_by_region = df.groupby("Country")["Happiness score"].mean()
-    logger.info(f"mean: {mean}, median: {median}, standard deviation: {std}, mean over years: {mean_by_year}, mean over countries: {mean_by_region}")
-    return {"mean": mean, "median": median, "standard deviation": std, "mean over years": mean_by_year, "mean over countries": mean_by_region}
+    mean_by_region = df.groupby("Regional indicator")["Happiness score"].mean()
+    logger.info(f"mean: {mean}, median: {median}, standard deviation: {std}, mean over years: {mean_by_year}, mean over regions: {mean_by_region}")
+    return {"mean": mean, "median": median, "standard deviation": std, "mean over years": mean_by_year, "mean over regions": mean_by_region}
 
 @task
 def plots(df):
@@ -63,7 +70,7 @@ def plots(df):
     logger.info("Boxplot is created")
 
     plt.scatter(df["Happiness score"], df["GDP per capita"], color = "green")
-    plt.title("Happiness vs GPD")
+    plt.title("Happiness vs GDP")
     plt.xlabel("Happiness score")
     plt.ylabel("GPD per capita")
     plt.savefig("assignments_01/outputs/gdp_vs_happiness.png")
@@ -82,6 +89,10 @@ def hypothesis(df):
     logger = get_run_logger()
     scores_2019 = df[df["year"] == 2019]["Happiness score"]
     scores_2020 = df[df["year"] == 2020]["Happiness score"]
+    mean_2019 = scores_2019.mean()
+    mean_2020 = scores_2020.mean()
+    logger.info(f"Mean happiness in 2019: {mean_2019:.3f}")
+    logger.info(f"Mean happiness in 2020: {mean_2020:.3f}")
     t_test, p_value = stats.ttest_ind(scores_2019, scores_2020, alternative="less")
     if p_value < 0.05:
         logger.info(f"The difference in happiness score between 2019 and 2020 years is statistically significant (t-test = {t_test}, p value = {p_value})")
@@ -103,18 +114,26 @@ def correlation(df):
     df_numeric = df.drop(columns = ["Ranking", "Country", "Regional indicator", "Happiness score", "year"])
     num_tests = len(df_numeric.columns)
     corrected_alpha = 0.05 / num_tests
-    corr_results = pd.DataFrame(columns=["variable", "r", "p"])
+    corr_results = []
     for col in df_numeric:
         r, p = stats.pearsonr(df_numeric[col], df["Happiness score"])
         if p < 0.05:
-            if p < corrected_alpha:
-                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which confirms that the result is statistically significant. The result is still statistically significant after alpha correction")
-                corr_results.loc[len(corr_results)] = [col, r, p]
-            else: 
-                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p}. The result appears statistically insignificant after checking against corrected alpha {corrected_alpha}")
+            logger.info(f"{col} is significant at the original alpha = 0.05")
         else:
-            logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which is statistically insignificant")
-    corr_results = corr_results[corr_results["r"].abs() > 0.1]
+            logger.info(
+                f"{col} is not significant at alpha = 0.05")
+        if p < corrected_alpha:
+                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p} which confirms that the result is statistically significant. The result is still statistically significant after alpha correction")
+        else: 
+                logger.info(f"Pearsons r for {col} and happiness scores equals {r} with p value equals {p}. The result appears statistically insignificant after checking against corrected alpha {corrected_alpha}")
+        corr_results.append({
+            "variable": col,
+            "r": r,
+            "p": p,
+            "significant_at_0.05": p < 0.05,
+            "significant_after_bonferroni": p < corrected_alpha
+        })
+    corr_results = pd.DataFrame(corr_results)
     corr_results["direction"] = corr_results["r"].apply(lambda x: "negative" if x < 0 else "positive")
     corr_results["strength"] = corr_results["r"].apply(lambda x: "weak" if abs(x) < 0.4 else "moderate" if abs(x) < 0.7 else "strong")
     for _, row in corr_results.iterrows():
@@ -124,12 +143,12 @@ def correlation(df):
 @task
 def summary(df, stats, testing, corr_results):
     logger = get_run_logger()
-    num_countries = df["Country"].nunique()
+    num_regions = df["Regional indicator"].nunique()
     num_years = df["year"].nunique()
-    countries = stats["mean over countries"].sort_values(ascending=False)
+    regions = stats["mean over regions"].sort_values(ascending=False)
     max_corr = corr_results.loc[corr_results["r"].idxmax()]
-    logger.info(f"The dataset includes {num_countries} countries across {num_years} years.")
-    logger.info(f"The contries that scored highest in happines are {countries.head(3)}, the countries that scored the lowest in happiness are {countries.tail(3)}")
+    logger.info(f"The dataset includes {num_regions} countries across {num_years} years.")
+    logger.info(f"The regions that scored highest in happines are {regions.head(3)}, the regions that scored the lowest in happiness are {regions.tail(3)}")
     logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing['t_test']}, p value = {testing['p_value']})")
     logger.info(f"{max_corr["variable"]} has the strongest correlation with happiness (r = {max_corr['r']}, p = {max_corr['p']})")
 
