@@ -144,6 +144,8 @@ plt.title("Distribution Comparison")
 plt.ylabel("Value")
 plt.tight_layout()
 plt.show()
+# The exponential distribution is right-skewed, so the median is a more appropriate measure of central tendency. 
+# For the approximately symmetric normal distribution, the mean is an appropriate measure of central tendency.
 
 # Descriptive Stats Question 5
 data1 = [10, 12, 12, 16, 18]

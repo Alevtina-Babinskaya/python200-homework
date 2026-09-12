@@ -86,6 +86,7 @@ def plots(df):
     plt.tight_layout()
     plt.title("Correlation heatmap")
     plt.savefig("assignments_01/outputs/correlation_heatmap.png")
+    plt.close()
     logger.info("Heatmap is created")
 
 @task
