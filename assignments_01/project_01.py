@@ -28,9 +28,9 @@ def load_data(link, filename):
 @task
 def clean_data(df):
     logger = get_run_logger()
-    df = df.map(lambda x: x.replace('"', '').replace(',', '.') if isinstance(x, str) else x)
     for col in df.columns:
         if col not in ["Country", "Regional indicator"]:
+            df[col] = (df[col].astype(str).str.replace('"', '', regex=False).str.replace(',', '.', regex=False))
             df[col] = pd.to_numeric(df[col], errors = "coerce")
     df["Healthy life expectancy"] = df["Healthy life expectancy"].fillna(df.groupby("Country")["Healthy life expectancy"].transform("mean"))
     logger.info("Data cleaned")   
