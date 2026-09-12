@@ -72,7 +72,7 @@ def plots(df):
     plt.scatter(df["Happiness score"], df["GDP per capita"], color = "green")
     plt.title("Happiness vs GDP")
     plt.xlabel("Happiness score")
-    plt.ylabel("GPD per capita")
+    plt.ylabel("GDP per capita")
     plt.savefig("assignments_01/outputs/gdp_vs_happiness.png")
     plt.close()
     logger.info("Scatterplot is created")
@@ -143,15 +143,21 @@ def correlation(df):
 @task
 def summary(df, stats, testing, corr_results):
     logger = get_run_logger()
-    num_regions = df["Regional indicator"].nunique()
+    num_country = df["Country"].nunique()
     num_years = df["year"].nunique()
     regions = stats["mean over regions"].sort_values(ascending=False)
     significant_corr = corr_results[corr_results["significant_after_bonferroni"]]
     max_corr = significant_corr.loc[significant_corr["r"].abs().idxmax()]
-    logger.info(f"The dataset includes {num_regions} regions across {num_years} years.")
+    logger.info(f"The dataset includes {num_country} countries across {num_years} years.")
     logger.info(f"The regions that scored highest in happines are {regions.head(3)}, the regions that scored the lowest in happiness are {regions.tail(3)}")
-    logger.info(f"There is no significant difference in happiness score between 2019 and 2020 years (t-test = {testing['t_test']}, p value = {testing['p_value']})")
-    logger.info(f"{max_corr["variable"]} has the strongest correlation with happiness (r = {max_corr['r']}, p = {max_corr['p']})")
+
+    if testing["p_value"] < 0.05:
+        logger.info(f"There is a statistically significant difference in happiness scores between 2019 and 2020 (t-test = {testing['t_test']:.3f}, p = {testing['p_value']:.3f})."
+    )
+    else:
+        logger.info(f"There is no statistically significant difference in happiness scores between 2019 and 2020 (t-test = {testing['t_test']:.3f}, p = {testing['p_value']:.3f}).")
+    
+    logger.info(f"{max_corr['variable']} has the strongest correlation with happiness (r = {max_corr['r']}, p = {max_corr['p']})")
 
 @flow
 def pipeline():
