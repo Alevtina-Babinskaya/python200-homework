@@ -14,7 +14,11 @@ def load_data(link, filename):
     path = link + filename
     for year in range(2015, 2025):
         logger.info("Starting loading the data")
-        data = pd.read_csv(path + str(year) + ".csv", sep = ";")
+        try:
+            data = pd.read_csv(path + str(year) + ".csv", sep = ";")
+        except Exception as e: 
+            logger.info(f"Cannot download data for {str(year)} year")
+            continue
         data = data.rename(columns={"Ladder score": "Happiness score"})
         data["year"] = year
         dfs.append(data)
