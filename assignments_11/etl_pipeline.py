@@ -79,7 +79,7 @@ def transform(raw_records: list) -> list:
     print(f"{len(to_complete)} of {len(raw_records)} records to transform")
     if not to_complete:
         print("All records are already enriched")
-        return
+        return []
 
     clf = joblib.load("assignments_11/models/weather_classifier.pkl")
     df = pd.DataFrame(to_complete)
