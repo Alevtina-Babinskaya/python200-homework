@@ -8,14 +8,16 @@ from prefect.logging import get_run_logger
 # @flow is a decorator for the pipeline structure, it defines the workflow and runs the tasks in the required order. 
 # You have a helper function that converts a temperature from Celsius to Fahrenheit — a pure, in-memory calculation with no I/O. 
 # Would you decorate it with @task? Why or why not?
-# It depends on whether I want it to be a part of pipeline flow or not. Given that this is a simple helper function I would rather not decorate it as a task.
+# It depends on whether I want it to be a part of pipeline flow or not. Given that this is a simple helper function and 
+# it doesn't have input and output I would rather NOT decorate it as a task.
 # 
 # Prefect Question 2
 @task(retries = 3, retry_delay_seconds = 30)
-def call_api() -> list:
-    return None
+
 # Prefect Question 3
-# I will look in the logs of transform task to find the exception traceback.
+# I will look in the logs of transform task to find the exception traceback. I would start from "runs" tab where all the runs are shown. 
+# This screen presents parameters and statuses of all runs. If run is marked as failed I would click on it and see which particular step caused the fail.
+# Then I would look into logs under the diagram and find out what caused the step to fail.
 
 # Production Patterns
 # Production Question 1
@@ -35,8 +37,7 @@ def call_api() -> list:
 def log_number(enrichment_records: list) -> None:
     logger = get_run_logger()
     logger.info(f"{len(enrichment_records)} records were upserted")
-    if not enrichment_records:
-        logger.warning("No enrichment records were loaded")
+
 
 # Production Question 4
 # Incremental processing checks how many records from the raw data have already been enriched. 

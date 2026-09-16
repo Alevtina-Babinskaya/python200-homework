@@ -34,14 +34,14 @@ SYSTEM_PROMPT = (
     "Write exactly one sentence — direct, practical, and specific to the conditions. "
     "Do not use bullet points, headers, or phrases like 'Based on the data'."
 )
-LATITUDE = 37.3861
+LATITUDE = 37.3861 # Location: Mountain View, CA
 LONGITUDE = -122.0839
 
 @task(retries=2, retry_delay_seconds=10)
 def extract() -> list:
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
-        "latitude": LATITUDE,     # Location: Mountain View, CA
+        "latitude": LATITUDE,     
         "longitude": LONGITUDE,
         "start_date": "2023-01-01",
         "end_date": "2023-12-31",
@@ -79,6 +79,7 @@ def transform(raw_records: list) -> list:
     print(f"{len(to_complete)} of {len(raw_records)} records to transform")
     if not to_complete:
         print("All records are already enriched")
+        return
 
     clf = joblib.load("assignments_11/models/weather_classifier.pkl")
     df = pd.DataFrame(to_complete)
